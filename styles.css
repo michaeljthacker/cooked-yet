@@ -35,3 +35,67 @@ canvas { display:block; width: 100%; height: auto; }
 .checkline { display:flex; gap: 8px; align-items:center; padding: 10px 12px; border: 1px solid #d0d5dd; border-radius: 10px; }
 .checkline input[type="checkbox"] { width: 18px; height: 18px; }
 .fit-details { font-size: 10px; color: #888; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 24px 24px 32px;
+  color: #666;
+  font-size: 13px;
+}
+.footer a {
+  color: #2563eb;
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Buy me a coffee button */
+.coffee-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  opacity: 0;
+  transition: opacity 2s ease-in-out;
+  z-index: 1000;
+}
+.coffee-btn.show {
+  opacity: 1;
+}
+.coffee-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fde047;
+  color: #000;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-decoration: none;
+  transition: all 0.3s;
+  max-width: 200px;
+  font-size: 14px;
+}
+.coffee-link:hover {
+  background: #ca8a04;
+  color: #f3f4f6;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+.coffee-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .coffee-link {
+    padding: 8px 12px;
+    font-size: 12px;
+    max-width: 180px;
+  }
+  .coffee-icon {
+    width: 14px;
+    height: 14px;
+  }
+}

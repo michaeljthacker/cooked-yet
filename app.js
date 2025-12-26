@@ -526,4 +526,10 @@ els.chart.addEventListener("mousemove", (e) => {
   const mm = String(now.getMinutes()).padStart(2, "0");
   els.readingTime.value = `${hh}:${mm}`;
   renderAll();
+  
+  // Show coffee button after 5 seconds
+  setTimeout(() => {
+    const coffeeBtn = document.getElementById("coffeeButton");
+    if (coffeeBtn) coffeeBtn.classList.add("show");
+  }, 5000); // 5 seconds
 })();
