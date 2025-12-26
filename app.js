@@ -149,6 +149,8 @@ const els = {
   count: document.getElementById("readingCount"),
 
   etaPill: document.getElementById("etaPill"),
+  currentStatus: document.getElementById("currentStatus"),
+  chartLegend: document.getElementById("chartLegend"),
   fitInfo: document.getElementById("fitInfo"),
   chart: document.getElementById("chart"),
 };
@@ -157,6 +159,17 @@ function setPill(text, kind) {
   els.etaPill.textContent = text;
   els.etaPill.classList.remove("warn", "bad");
   if (kind) els.etaPill.classList.add(kind);
+}
+
+function getDonenessBand(temp) {
+  // Simple doneness labels for beef-ish temps
+  if (temp < 120) return "very rare";
+  if (temp < 130) return "rare";
+  if (temp < 140) return "medium-rare";
+  if (temp < 150) return "medium";
+  if (temp < 160) return "medium-well";
+  if (temp < 170) return "well done";
+  return "very well done";
 }
 
 function renderTargetExplain() {
@@ -297,10 +310,16 @@ function renderAll() {
   renderTable();
 
   const target = getEffectiveTarget();
+  const finalTarget = getFinalTarget();
+  const useCarryover = els.useCarryover.checked;
   const points = readings.slice().sort((a,b) => a.minutes - b.minutes).map(r => ({ x: r.minutes, y: r.temp }));
 
+  // Hide current status and legend by default
+  els.currentStatus.style.display = "none";
+  els.chartLegend.style.display = "none";
+
   if (readings.length < 3) {
-    setPill("Need 3+ readings", "warn");
+    setPill("Not enough data yet", "warn");
     els.fitInfo.textContent = "Fit: —";
     drawChart(points, null, target, null);
     return;
@@ -308,7 +327,7 @@ function renderAll() {
 
   const model = fitQuadraticOLS(points);
   if (!model) {
-    setPill("Fit failed (singular)", "bad");
+    setPill("Fit failed", "bad");
     els.fitInfo.textContent = "Fit: failed";
     drawChart(points, null, target, null);
     return;
@@ -323,12 +342,42 @@ function renderAll() {
   if (xDone) glideEnd = Math.max(glideEnd, xDone + 10); // extend 10 min past target reach
   const glidePoints = buildGlidePoints(model, glideEnd);
 
-  if (!xDone) {
-    setPill(isHeating ? "No real ETA (yet)" : "Curve not heating", isHeating ? "warn" : "bad");
-  } else {
-    const eta = formatClockTimeFromBase(baseDate, xDone);
-    setPill(`Target around: ${eta}`, "");
+  // Current status logic (with timezone/sanity checks)
+  if (baseDate) {
+    const now = new Date();
+    const nowMinutes = minutesBetween(now, baseDate);
+    // Only show if "now" is reasonable: after first reading but not absurdly far in future
+    if (nowMinutes >= 0 && nowMinutes <= lastX + 120) { // within 2 hours of last reading
+      const predictedNowTemp = evalModel(model, nowMinutes);
+      // Sanity check: reasonable cooking temp range
+      if (predictedNowTemp > 0 && predictedNowTemp < 300) {
+        const doneness = getDonenessBand(predictedNowTemp);
+        els.currentStatus.textContent = `As of last reading: predicted ~${predictedNowTemp.toFixed(1)}°F (${doneness})`;
+        els.currentStatus.style.display = "block";
+      }
+    }
   }
+
+  // Pill messages with CookedYet branding
+  if (!xDone) {
+    setPill(isHeating ? "No clear ETA yet" : "Not heating yet", isHeating ? "warn" : "bad");
+  } else {
+    const pullTime = formatClockTimeFromBase(baseDate, xDone);
+    
+    if (useCarryover) {
+      // Calculate rest time (assume 5 min for now, could be dynamic)
+      const restMinutes = 5;
+      const doneTime = formatClockTimeFromBase(baseDate, xDone + restMinutes);
+      setPill(`Not cooked yet — pull ${pullTime}, rest until ${doneTime}`, "");
+    } else {
+      setPill(`Not cooked yet — done around ${pullTime}`, "");
+    }
+  }
+
+  // Chart legend
+  const targetLabel = useCarryover ? "pull temp" : "done temp";
+  els.chartLegend.textContent = `● readings  — fitted curve  - - - ${targetLabel} (${target.toFixed(1)}°F)`;
+  els.chartLegend.style.display = "block";
 
   els.fitInfo.textContent =
     `Fit: T(t)= ${model.a.toFixed(2)} + ${model.b.toFixed(4)}·t + ${model.c.toFixed(6)}·t²  |  ` +
