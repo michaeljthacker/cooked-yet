@@ -142,7 +142,7 @@ Always follow food-safety guidelines and rely on a calibrated thermometer when d
 
 ## License
 
-MIT (or your preferred license)
+[MIT](LICENSE)
 
 ---
 

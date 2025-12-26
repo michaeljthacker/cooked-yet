@@ -227,7 +227,26 @@ function drawChart(points, model, target, glidePoints, xDone, useCarryover) {
   ctx.fillStyle = "#0b1220";
   ctx.fillRect(0, 0, W, H);
 
-  if (points.length === 0) return;
+  // Show logo and message when no prediction line can be drawn
+  if (!model) {
+    // Load and draw logo
+    const logo = new Image();
+    logo.onload = () => {
+      const logoSize = 64;
+      const logoX = (W - logoSize) / 2;
+      const logoY = (H - logoSize) / 2 - 30;
+      ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+      
+      // Draw message
+      ctx.font = "16px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Add temperature readings to see your prediction chart", W / 2, H / 2 + 50);
+    };
+    logo.src = "icons/apple-icon-76x76.png";
+    return;
+  }
 
   // Determine bounds using points + glide path + target
   const all = glidePoints && glidePoints.length ? points.concat(glidePoints) : points.slice();
