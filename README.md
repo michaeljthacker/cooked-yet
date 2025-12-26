@@ -1,4 +1,3 @@
-```markdown
 # CookedYet
 
 **CookedYet** is a tiny, browser-only cooking helper that answers a simple question:
@@ -148,4 +147,3 @@ MIT (or your preferred license)
 ---
 
 Built as a small, practical tool — not a platform.
-```
