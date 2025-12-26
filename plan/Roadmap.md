@@ -5,10 +5,6 @@
    - Restore on page load
    - Clear on "Clear" button click
 
-2. **(Optional, best ROI)** add a lightweight robust weighting pass to dampen a single weird reading
-
-3. **(Optional)** if you still want it, upgrade solving method (QR) while staying dependency-free
-
 ## Completed Steps
 
 ✅ **Refactor into `index.html` + `styles.css` + `app.js`**
