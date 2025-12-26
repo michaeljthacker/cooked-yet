@@ -237,12 +237,13 @@ function drawChart(points, model, target, glidePoints, xDone, useCarryover) {
       const logoY = (H - logoSize) / 2 - 30;
       ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
       
-      // Draw message
+      // Draw message (split into two lines for mobile)
       ctx.font = "16px system-ui, -apple-system, sans-serif";
       ctx.fillStyle = "rgba(255,255,255,0.6)";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("Add temperature readings to see your prediction chart", W / 2, H / 2 + 50);
+      ctx.fillText("Add temperature readings", W / 2, H / 2 + 45);
+      ctx.fillText("to see your prediction chart", W / 2, H / 2 + 65);
     };
     logo.src = "icons/apple-icon-76x76.png";
     return;
