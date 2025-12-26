@@ -207,7 +207,7 @@ function renderTable() {
 }
 
 // Draw points + predicted glide path
-function drawChart(points, model, target, glidePoints) {
+function drawChart(points, model, target, glidePoints, xDone, useCarryover) {
   const ctx = els.chart.getContext("2d");
   
   // Set canvas size to match container to avoid stretching
@@ -309,8 +309,32 @@ function drawChart(points, model, target, glidePoints) {
     pointCoords.push({ x: X, y: Y, dataX: p.x, dataY: p.y });
   }
   
+  // Target intersection dot (where predicted curve meets target)
+  let targetDot = null;
+  if (xDone !== null && xDone !== undefined && model) {
+    const targetX = xScale(xDone);
+    const targetY = yScale(target);
+    
+    // Draw large white dot
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.beginPath();
+    ctx.arc(targetX, targetY, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Add subtle border for definition
+    ctx.strokeStyle = "rgba(16,185,129,0.8)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    targetDot = { 
+      x: targetX, 
+      y: targetY, 
+      message: useCarryover ? "PULL IT!" : "IT'S COOKED!"
+    };
+  }
+  
   // Store chart state for hover
-  els.chart.chartData = { pointCoords, xScale, yScale, baseDate };
+  els.chart.chartData = { pointCoords, targetDot, xScale, yScale, baseDate };
 }
 
 function buildGlidePoints(model, endMinuteInclusive) {
@@ -339,7 +363,7 @@ function renderAll() {
   if (readings.length < 3) {
     setPill("Not enough data yet", "warn");
     els.fitInfo.textContent = "Fit: —";
-    drawChart(points, null, target, null);
+    drawChart(points, null, target, null, null, false);
     return;
   }
 
@@ -347,7 +371,7 @@ function renderAll() {
   if (!model) {
     setPill("Fit failed", "bad");
     els.fitInfo.textContent = "Fit: failed";
-    drawChart(points, null, target, null);
+    drawChart(points, null, target, null, null, false);
     return;
   }
 
@@ -401,7 +425,7 @@ function renderAll() {
     `Fit: T(t)= ${model.a.toFixed(2)} + ${model.b.toFixed(4)}·t + ${model.c.toFixed(6)}·t²  |  ` +
     `end slope ≈ ${slopeAtEnd.toFixed(3)} °F/min  |  target=${target.toFixed(1)}°F`;
 
-  drawChart(points, model, target, glidePoints);
+  drawChart(points, model, target, glidePoints, xDone, useCarryover);
 }
 
 // ---------------------------
@@ -459,6 +483,46 @@ els.chart.addEventListener("mousemove", (e) => {
   
   const ctx = els.chart.getContext("2d");
   
+  // Check if hovering over target dot first
+  if (chartData.targetDot) {
+    const targetDot = chartData.targetDot;
+    const distToDot = Math.sqrt((mouseX - targetDot.x) ** 2 + (mouseY - targetDot.y) ** 2);
+    if (distToDot < 15) {
+      els.chart.style.cursor = "pointer";
+      
+      if (chartData.lastHoveredType !== 'target') {
+        // Draw tooltip for target dot
+        ctx.save();
+        ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
+        const text = targetDot.message;
+        const textWidth = ctx.measureText(text).width;
+        const tooltipW = textWidth + 24;
+        const tooltipH = 40;
+        let tooltipX = targetDot.x + 15;
+        let tooltipY = targetDot.y - 10;
+        
+        // Keep tooltip in bounds
+        if (tooltipX + tooltipW > els.chart.width - 10) tooltipX = targetDot.x - tooltipW - 15;
+        if (tooltipY + tooltipH > els.chart.height - 10) tooltipY = targetDot.y - tooltipH - 10;
+        
+        ctx.fillStyle = "rgba(16,185,129,0.95)";
+        ctx.fillRect(tooltipX, tooltipY, tooltipW, tooltipH);
+        ctx.strokeStyle = "rgba(255,255,255,0.4)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(tooltipX, tooltipY, tooltipW, tooltipH);
+        
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2);
+        ctx.restore();
+        
+        chartData.lastHoveredType = 'target';
+      }
+      return; // Don't check for point hovers
+    }
+  }
+  
   // Find nearby point
   let hoveredPoint = null;
   const hoverRadius = 15;
@@ -508,12 +572,14 @@ els.chart.addEventListener("mousemove", (e) => {
         ctx.restore();
         
         currentChart.lastHoveredPoint = hoveredPoint;
+        currentChart.lastHoveredType = 'point';
       }
     }
   } else {
     els.chart.style.cursor = "default";
-    if (chartData.lastHoveredPoint) {
+    if (chartData.lastHoveredPoint || chartData.lastHoveredType) {
       chartData.lastHoveredPoint = null;
+      chartData.lastHoveredType = null;
       renderAll(); // Redraw to clear tooltip
     }
   }
