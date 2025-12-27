@@ -1,9 +1,6 @@
-## Concrete next-step order (so it stays truly simple)
+## Next Step Priorities
 
-1. **Add localStorage persistence**
-   - Save readings, baseDate/time, target/carryover settings
-   - Restore on page load
-   - Clear on "Clear" button click
+_No planned future work._
 
 ## Completed Steps
 
@@ -51,3 +48,9 @@
    - Updated pill messages to clarify predictions ("Predicted: pull at [time], then let it rest")
    - Footer disclaimer with info icon and hover tooltip
    - Fixed manifest.json icon paths
+
+✅ **Local persistence**
+   - Saves readings, baseDate, and target/carryover settings to localStorage
+   - Restores state on page load
+   - Clears localStorage on "Clear" button click
+   - Consistent 12-hour time format (AM/PM) throughout UI
