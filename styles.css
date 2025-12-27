@@ -50,6 +50,74 @@ canvas { display:block; width: 100%; height: auto; }
 .footer a:hover {
   text-decoration: underline;
 }
+.disclaimer-footer {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.info-icon-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: middle;
+  cursor: help;
+}
+.info-icon {
+  display: inline-block;
+  vertical-align: middle;
+  color: #999;
+}
+.info-icon-container:hover .info-icon {
+  color: #2563eb;
+}
+.disclaimer-tooltip {
+  display: none !important;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #333;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid #ddd;
+  width: 320px;
+  font-size: 12px;
+  text-align: left;
+  z-index: 1000;
+  line-height: 1.5;
+  white-space: normal;
+}
+.info-icon-container:hover div.disclaimer-tooltip {
+  display: block !important;
+}
+.disclaimer-tooltip strong {
+  color: #2563eb;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 8px;
+}
+.disclaimer-tooltip p {
+  margin: 0 0 8px;
+}
+.disclaimer-tooltip ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+.disclaimer-tooltip li {
+  margin: 4px 0;
+}
+@media (max-width: 640px) {
+  .disclaimer-tooltip {
+    width: 280px;
+  }
+}
 
 /* Buy me a coffee button */
 .coffee-btn {
@@ -98,4 +166,19 @@ canvas { display:block; width: 100%; height: auto; }
     width: 14px;
     height: 14px;
   }
+}
+
+/* Disclaimer */
+.disclaimer {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+.disclaimer ul {
+  list-style-type: disc;
+}
+.disclaimer li {
+  margin: 4px 0;
+}
+.disclaimer p {
+  line-height: 1.5;
 }

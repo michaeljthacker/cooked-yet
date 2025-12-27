@@ -349,7 +349,8 @@ function drawChart(points, model, target, glidePoints, xDone, useCarryover) {
     targetDot = { 
       x: targetX, 
       y: targetY, 
-      message: useCarryover ? "PULL IT!" : "IT'S COOKED!"
+      message: useCarryover ? "PULL IT!" : "IT'S COOKED!",
+      xDone: xDone
     };
   }
   
@@ -427,12 +428,9 @@ function renderAll() {
     const pullTime = formatClockTimeFromBase(baseDate, xDone);
     
     if (useCarryover) {
-      // Calculate rest time (assume 5 min for now, could be dynamic)
-      const restMinutes = 5;
-      const doneTime = formatClockTimeFromBase(baseDate, xDone + restMinutes);
-      setPill(`Not cooked yet — pull ${pullTime}, rest until ${doneTime}`, "");
+      setPill(`Predicted: pull at ${pullTime}, then let it rest`, "");
     } else {
-      setPill(`Not cooked yet — done around ${pullTime}`, "");
+      setPill(`Predicted: done around ${pullTime}`, "");
     }
   }
 
@@ -513,11 +511,19 @@ els.chart.addEventListener("mousemove", (e) => {
       if (chartData.lastHoveredType !== 'target') {
         // Draw tooltip for target dot
         ctx.save();
-        ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
-        const text = targetDot.message;
-        const textWidth = ctx.measureText(text).width;
-        const tooltipW = textWidth + 24;
-        const tooltipH = 40;
+        
+        const mainText = targetDot.message;
+        const timeText = chartData.baseDate && targetDot.xDone !== null && targetDot.xDone !== undefined
+          ? `(predicted: ${formatClockTimeFromBase(chartData.baseDate, targetDot.xDone)})`
+          : "(predicted)";
+        
+        ctx.font = "bold 18px system-ui, -apple-system, sans-serif";
+        const mainWidth = ctx.measureText(mainText).width;
+        ctx.font = "14px system-ui, -apple-system, sans-serif";
+        const timeWidth = ctx.measureText(timeText).width;
+        
+        const tooltipW = Math.max(mainWidth, timeWidth) + 24;
+        const tooltipH = 58;
         let tooltipX = targetDot.x + 15;
         let tooltipY = targetDot.y - 10;
         
@@ -531,10 +537,17 @@ els.chart.addEventListener("mousemove", (e) => {
         ctx.lineWidth = 2;
         ctx.strokeRect(tooltipX, tooltipY, tooltipW, tooltipH);
         
+        // Draw main text (bold)
         ctx.fillStyle = "#fff";
+        ctx.font = "bold 18px system-ui, -apple-system, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(text, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2);
+        ctx.fillText(mainText, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2 - 10);
+        
+        // Draw time text (smaller, below)
+        ctx.font = "14px system-ui, -apple-system, sans-serif";
+        ctx.fillText(timeText, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2 + 12);
+        
         ctx.restore();
         
         chartData.lastHoveredType = 'target';
@@ -618,4 +631,18 @@ els.chart.addEventListener("mousemove", (e) => {
     const coffeeBtn = document.getElementById("coffeeButton");
     if (coffeeBtn) coffeeBtn.classList.add("show");
   }, 5000); // 5 seconds
+  
+  // Handle disclaimer
+  const disclaimer = document.getElementById("disclaimer");
+  const dismissBtn = document.getElementById("dismissDisclaimer");
+  const disclaimerKey = "cookedyet.disclaimerDismissed";
+  
+  if (localStorage.getItem(disclaimerKey) === "true") {
+    disclaimer.style.display = "none";
+  }
+  
+  dismissBtn.addEventListener("click", () => {
+    localStorage.setItem(disclaimerKey, "true");
+    disclaimer.style.display = "none";
+  });
 })();

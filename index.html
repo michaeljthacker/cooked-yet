@@ -17,13 +17,37 @@
       <h1 style="margin: 0;">Is It Cooked Yet?</h1>
     </div>
 
+    <div class="muted" style="margin-bottom: 12px; text-align: center;">
+      Track meat temperature. Predict when it's done.
+    </div>
+
+    <!-- Disclaimer -->
+    <div id="disclaimer" class="card disclaimer" style="margin-bottom: 14px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <strong style="color: #2563eb;">Important: You are the cook</strong>
+      </div>
+      <div class="muted small">
+        <p style="margin: 6px 0;">CookedYet is a <strong>prediction tool</strong> based on your actual temperature readings, not a replacement for your thermometer or judgment. We do not guarantee anything.</p>
+        <ul style="margin: 8px 0; padding-left: 20px;">
+          <li>This is not a food safety authority</li>
+          <li>Predictions are estimates based on your readings, not recipes</li>
+          <li><strong>Always trust your thermometer first</strong></li>
+          <li>Charts show <strong>predicted future completion times</strong>. Verify before removing food from heat</li>
+        </ul>
+        <p style="margin: 8px 0 4px; font-size: 11px; color: #888;">By dismissing this notice, you acknowledge that you have read and understand these limitations and agree not to hold us liable for any cooking outcomes.</p>
+      </div>
+      <button id="dismissDisclaimer" class="secondary" style="margin-top: 8px; width: 100%;">I understand, dismiss.</button>
+    </div>
+
     <div class="grid">
       <!-- Left: chart + result -->
       <div class="card">
         <div class="split">
-          <div class="muted">
-            Add temperature readings as you cook. We'll tell you when it's done.
-          </div>
           <div id="etaPill" class="pill warn">Need 3+ readings</div>
         </div>
 
@@ -148,6 +172,26 @@
   <!-- Footer -->
   <footer class="footer">
     <p>An <a href="http://mjt.pub" target="_blank" rel="noopener noreferrer">mjt.pub</a> project | Questions? <a href="mailto:hi@mjt.pub">hi@mjt.pub</a></p>
+    <p class="disclaimer-footer">
+      By using this tool, you acknowledge our disclaimer
+      <div class="info-icon-container">
+        <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 16v-4"></path>
+          <circle cx="12" cy="8" r="0.5" fill="currentColor"></circle>
+        </svg>
+        <div class="disclaimer-tooltip">
+          <strong>You are the cook</strong>
+          <p>CookedYet is a prediction tool based on your actual temperature readings, not a replacement for your thermometer or judgment. We do not guarantee anything.</p>
+          <ul>
+            <li>This is not a food safety authority</li>
+            <li>Predictions are estimates based on your readings, not recipes</li>
+            <li>Always trust your thermometer first</li>
+            <li>Charts show predicted future completion times. Verify before removing food from heat</li>
+          </ul>
+        </div>
+      </div>
+    </p>
   </footer>
 
   <script src="app.js"></script>
