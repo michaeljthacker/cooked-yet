@@ -5,6 +5,8 @@
 let readings = [];
 let baseDate = null; // Date of first reading (today with HH:MM)
 
+const STORAGE_KEY = "cookedyet.v1";
+
 // ---------------------------
 // Helpers
 // ---------------------------
@@ -109,6 +111,48 @@ function formatTimeStr12Hour(timeStr) {
   return `${h12}:${String(mm).padStart(2, "0")}${ampm}`;
 }
 
+function saveState() {
+  try {
+    const state = {
+      readings,
+      baseDate: baseDate ? baseDate.toISOString() : null,
+      targetFinal: els.targetTempFinal.value,
+      useCarryover: els.useCarryover.checked,
+      carryoverF: els.carryoverF.value
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("Failed to save state:", e);
+  }
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return false;
+    
+    const state = JSON.parse(saved);
+    
+    // Restore readings and baseDate
+    if (state.readings && Array.isArray(state.readings)) {
+      readings = state.readings;
+    }
+    if (state.baseDate) {
+      baseDate = new Date(state.baseDate);
+    }
+    
+    // Restore settings
+    if (state.targetFinal) els.targetTempFinal.value = state.targetFinal;
+    if (typeof state.useCarryover === "boolean") els.useCarryover.checked = state.useCarryover;
+    if (state.carryoverF) els.carryoverF.value = state.carryoverF;
+    
+    return true;
+  } catch (e) {
+    console.warn("Failed to load state:", e);
+    return false;
+  }
+}
+
 function formatClockTimeFromBase(base, minutesFromBase) {
   const d = new Date(base.getTime() + minutesFromBase * 60000);
   const hh = d.getHours();
@@ -208,6 +252,7 @@ function renderTable() {
         readings.splice(idx, 1);
         if (readings.length === 0) baseDate = null;
         renderAll();
+        saveState();
       });
       els.table.appendChild(tr);
     });
@@ -462,11 +507,21 @@ els.targetPreset.addEventListener("change", () => {
     els.targetTempFinal.value = els.targetPreset.value;
   }
   renderAll();
+  saveState();
 });
 
-els.targetTempFinal.addEventListener("input", renderAll);
-els.useCarryover.addEventListener("change", renderAll);
-els.carryoverF.addEventListener("input", renderAll);
+els.targetTempFinal.addEventListener("input", () => {
+  renderAll();
+  saveState();
+});
+els.useCarryover.addEventListener("change", () => {
+  renderAll();
+  saveState();
+});
+els.carryoverF.addEventListener("input", () => {
+  renderAll();
+  saveState();
+});
 
 els.addBtn.addEventListener("click", () => {
   const timeStr = els.readingTime.value;
@@ -488,11 +543,13 @@ els.addBtn.addEventListener("click", () => {
   readings.push({ timeStr, minutes, temp });
   els.readingTemp.value = "";
   renderAll();
+  saveState();
 });
 
 els.clearBtn.addEventListener("click", () => {
   readings = [];
   baseDate = null;
+  localStorage.removeItem(STORAGE_KEY);
   renderAll();
 });
 
@@ -628,6 +685,9 @@ els.chart.addEventListener("mousemove", (e) => {
 
 // Seed time input to "now"
 (function init() {
+  // Load saved state first
+  const loaded = loadState();
+  
   const now = new Date();
   const hh = String(now.getHours()).padStart(2, "0");
   const mm = String(now.getMinutes()).padStart(2, "0");
