@@ -43,3 +43,11 @@
    - Responsive design
    - Fire emoji for data points
    - Branded messages ("Not cooked yet", "PULL IT!", "IT'S COOKED!")
+
+✅ **Disclaimer and expectations**
+   - Prominent disclaimer banner with dismiss functionality
+   - Persists dismissal to localStorage
+   - Updated chart hover messages to show predictions with timestamps
+   - Updated pill messages to clarify predictions ("Predicted: pull at [time], then let it rest")
+   - Footer disclaimer with info icon and hover tooltip
+   - Fixed manifest.json icon paths
