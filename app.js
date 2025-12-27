@@ -101,6 +101,14 @@ function predictDoneTimeMinutes(model, target, lastX) {
   return Math.min(...candidates);
 }
 
+function formatTimeStr12Hour(timeStr) {
+  // Convert "HH:MM" (24-hour) to "h:MMam/pm" (12-hour)
+  const [hh, mm] = timeStr.split(":").map(Number);
+  const ampm = hh >= 12 ? "pm" : "am";
+  const h12 = ((hh + 11) % 12) + 1;
+  return `${h12}:${String(mm).padStart(2, "0")}${ampm}`;
+}
+
 function formatClockTimeFromBase(base, minutesFromBase) {
   const d = new Date(base.getTime() + minutesFromBase * 60000);
   const hh = d.getHours();
@@ -191,7 +199,7 @@ function renderTable() {
     .forEach((r, idx) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${r.timeStr}</td>
+        <td>${formatTimeStr12Hour(r.timeStr)}</td>
         <td class="right">${r.temp.toFixed(1)}</td>
         <td class="right">${r.minutes.toFixed(1)}</td>
         <td class="right"><button class="secondary" data-idx="${idx}">X</button></td>
@@ -579,7 +587,7 @@ els.chart.addEventListener("mousemove", (e) => {
         // Draw tooltip
         ctx.save();
         ctx.font = "14px system-ui, -apple-system, sans-serif";
-        const text1 = `Time: ${reading.timeStr}`;
+        const text1 = `Time: ${formatTimeStr12Hour(reading.timeStr)}`;
         const text2 = `Temp: ${reading.temp.toFixed(1)}°F`;
         const maxWidth = Math.max(ctx.measureText(text1).width, ctx.measureText(text2).width);
         const tooltipW = maxWidth + 20;
