@@ -540,10 +540,24 @@ els.addBtn.addEventListener("click", () => {
     return;
   }
 
+  const wasEmpty = readings.length === 0;
   readings.push({ timeStr, minutes, temp });
   els.readingTemp.value = "";
   renderAll();
   saveState();
+
+  if (wasEmpty) {
+    window.mjtAnalytics?.track("first_reading_added", {
+      state: {
+        targetPreset: els.targetPreset.options[els.targetPreset.selectedIndex]?.text ?? els.targetPreset.value,
+        desiredFinalTempF: getFinalTarget(),
+        useCarryover: els.useCarryover.checked,
+        carryoverF: getCarryover(),
+        readingTime: timeStr,
+        readingTempF: temp,
+      },
+    });
+  }
 });
 
 els.clearBtn.addEventListener("click", () => {
@@ -712,5 +726,6 @@ els.chart.addEventListener("mousemove", (e) => {
   dismissBtn.addEventListener("click", () => {
     localStorage.setItem(disclaimerKey, "true");
     disclaimer.style.display = "none";
+    window.mjtAnalytics?.track("disclaimer_dismissed");
   });
 })();
